@@ -1,6 +1,6 @@
 let employees = [];
 
-document.getElementById('addEmployeeTable').addEventListener('submit', function(event) {
+document.getElementById('addEmployeeForm').addEventListener('submit', function(event) {
   event.preventDefault();
   const id = document.getElementById('id').value;
   const lastName = document.getElementById('lastName').value;

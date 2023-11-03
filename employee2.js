@@ -1,6 +1,6 @@
 let employees = [];
 
-document.getElementById('addEmployeeTable').addEventListener('submit', function(event) {
+document.getElementById('addEmployeeForm').addEventListener('submit', function(event) {
   event.preventDefault();
   const id = document.getElementById('id').value;
   const lastName = document.getElementById('lastName').value;
@@ -14,76 +14,49 @@ document.getElementById('addEmployeeTable').addEventListener('submit', function(
     alert("ID should have exactly 6 characters and can only include numbers and letters.");
     return;
   }
-  if (employees.find(employee => employee.id === id)) {
-    alert("This ID is already taken");
-    return;
-  }
-  if (!nameRegex.test(lastName) || !nameRegex.test(firstName) || lastName.length < 2 || lastName.length > 14 || firstName.length < 2 || firstName.length > 14) {
+  else if (!nameRegex.test(lastName) || !nameRegex.test(firstName) || lastName.length < 2 || lastName.length > 14 || firstName.length < 2 || firstName.length > 14) {
     alert("Your name should not contain numbers and it should have 2-14 characters.");
     return;
   }
-  if (age < 18 || age > 60) {
+  else if (age < 18 || age > 60) {
     alert("Age should be from 18-60");
     return;
   }
-
-  // Add the employee to the employees array
-  employees.push({ id, lastName, firstName, age, department });
-
-  // Clear the form
-  document.getElementById('addEmployeeTable').reset();
-
-  // Update the Employee table
-  updateEmployeeTable();
+  else if (!addEmployee(id, lastName, firstName, age, department)) {
+    alert('Employee ID already exists!');
+  }
+  else {
+    displayEmployees();
+    //Clear the form fields
+    document.getElementById('id').value = '';
+    document.getElementById('lastName').value = '';
+    document.getElementById('firstName').value = '';
+    document.getElementById('age').value = '';
+    document.getElementById('department').value = 'IT';
+  }
 });
 
-function updateEmployeeTable() {
-  const employeeTable = document.getElementById('employeeTable');
-  // Clear existing table rows
-  employeeTable.innerHTML = `
-    <tr>
-      <th>Employee ID</th>
-      <th>Last Name</th>
-      <th>First Name</th>
-      <th>Age</th>
-      <th>Department</th>
-      <th>Action</th>
-    </tr>
-  `;
-
-  // Populate the table with employee data
-  employees.forEach((employee, index) => {
-    const newRow = employeeTable.insertRow(index + 1);
-
-    const cellId = newRow.insertCell(0);
-    cellId.textContent = employee.id;
-
-    const cellLastName = newRow.insertCell(1);
-    cellLastName.textContent = employee.lastName;
-
-    const cellFirstName = newRow.insertCell(2);
-    cellFirstName.textContent = employee.firstName;
-
-    const cellAge = newRow.insertCell(3);
-    cellAge.textContent = employee.age;
-
-    const cellDepartment = newRow.insertCell(4);
-    cellDepartment.textContent = employee.department;
-
-    const cellAction = newRow.insertCell(5);
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', () => confirmDeleteEmployee(index));
-    cellAction.appendChild(deleteButton);
-  });
+function addEmployee(id, lastName, firstName, age, department) {
+  if (employees.some(employee => employee.id === id)) {
+    return false;
+  }
+  const employee = { id, lastName, firstName, age, department };
+  employees.push(employee);
+  return true;
 }
 
-function confirmDeleteEmployee(index) {
-  if (confirm("Are you sure you want to remove this employee?")) {
-    employees.splice(index, 1);
-    updateEmployeeTable();
+function removeEmployee(id) {
+  if (confirm('Are you sure you want to remove this employee?')) {
+    employees = employees.filter(employee => employee.id !== id);
+    displayEmployees();
   }
 }
 
-
-updateEmployeeTable();
+function displayEmployees() {
+  const table = document.getElementById('employeeTable');
+  table.innerHTML = '<tr><th>Employee ID</th><th>Last Name</th><th>First Name</th><th>Age</th><th>Department</th><th>Action</th></tr>';
+  for (const employee of employees) {
+    const row = `<tr><td>${employee.id}</td><td>${employee.lastName}</td><td>${employee.firstName}</td><td>${employee.age}</td><td>${employee.department}</td><td><button onclick="removeEmployee('${employee.id}')">Remove Now</button></td></tr>`;
+    table.innerHTML += row;
+  }
+}
